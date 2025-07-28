@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CCUsage Widget</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="widget-container">
+    <div class="widget-header">
+      <div class="widget-title">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z"></path>
+          <path d="M2 17L12 22L22 17"></path>
+          <path d="M2 12L12 17L22 12"></path>
+        </svg>
+        Claude Code Usage
+      </div>
+      <div class="widget-controls">
+        <button id="refresh-btn" class="control-btn" title="Refresh">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4V10H17"></path>
+            <path d="M1 20V14H7"></path>
+            <path d="M3.51 9A9 9 0 0 1 14.85 3.36L23 10M1 14L9.15 20.64A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+        <button id="minimize-btn" class="control-btn" title="Minimize">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <div class="widget-content">
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <span>Loading usage data...</span>
+      </div>
+      
+      <div class="error" id="error" style="display: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span id="error-message">Error loading data</span>
+      </div>
+      
+      <div class="usage-stats" id="usage-stats" style="display: none;">
+        <div class="stat-card today">
+          <div class="stat-header">
+            <span class="stat-label">Today</span>
+            <span class="stat-models" id="today-models"></span>
+          </div>
+          <div class="stat-value">
+            <span class="tokens" id="today-tokens">-</span>
+            <span class="cost" id="today-cost">$0.00</span>
+          </div>
+        </div>
+        
+        <div class="stat-card month">
+          <div class="stat-header">
+            <span class="stat-label">This Month</span>
+          </div>
+          <div class="stat-value">
+            <span class="tokens" id="month-tokens">-</span>
+            <span class="cost" id="month-cost">$0.00</span>
+          </div>
+        </div>
+        
+        <div class="stat-card total">
+          <div class="stat-header">
+            <span class="stat-label">Total</span>
+          </div>
+          <div class="stat-value">
+            <span class="tokens" id="total-tokens">-</span>
+            <span class="cost" id="total-cost">$0.00</span>
+          </div>
+        </div>
+        
+        <div class="recent-sessions">
+          <div class="sessions-header">Recent Sessions</div>
+          <div id="sessions-list" class="sessions-list"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="widget-footer">
+      <span class="last-updated" id="last-updated">Never updated</span>
+      <div class="opacity-control">
+        <input type="range" id="opacity-slider" min="30" max="100" value="95" step="5">
+      </div>
+    </div>
+  </div>
+  
+  <script src="../dist/renderer.js"></script>
+</body>
+</html>
