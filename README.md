@@ -33,9 +33,23 @@ A beautiful macOS desktop widget that displays your Claude Code usage statistics
 
 ## Installation
 
+### Option 1: Install from npm (Recommended)
+
+```bash
+npx ccusage-widget
+```
+
+Or install globally:
+```bash
+npm install -g ccusage-widget
+ccusage-widget
+```
+
+### Option 2: Build from source
+
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/ccusage-widget.git
+git clone https://github.com/JeongJaeSoon/ccusage-widget.git
 cd ccusage-widget
 ```
 
