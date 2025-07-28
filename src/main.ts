@@ -30,6 +30,8 @@ function createWindow() {
   
   const windowWidth = 400;
   const windowHeight = 300;
+  const minHeight = 200;
+  const maxHeight = 600;
   
   let x = 0, y = 0;
   
@@ -55,12 +57,16 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
+    minWidth: windowWidth,
+    maxWidth: windowWidth,
+    minHeight: minHeight,
+    maxHeight: maxHeight,
     x,
     y,
     frame: false,
     transparent: true,
     alwaysOnTop: config.alwaysOnTop,
-    resizable: false,
+    resizable: true,
     movable: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -305,11 +311,26 @@ ipcMain.handle('get-usage-data', async () => {
     }
 
     // Get today's usage (find today's date in the array)
-    const todayDate = new Date().toISOString().split('T')[0];
+    // Use local date to match ccusage output
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayDate = `${year}-${month}-${day}`;
+    
     const dailyArray = dailyData.daily || dailyData.data || [];
-    console.log('Looking for today:', todayDate);
-    console.log('Daily array:', dailyArray);
-    const today = dailyArray.find((d: any) => d.date === todayDate) || null;
+    console.log('Looking for today (local):', todayDate);
+    console.log('Available dates:', dailyArray.map((d: any) => d.date));
+    
+    // Find today's data or get the most recent day
+    let today = dailyArray.find((d: any) => d.date === todayDate);
+    
+    // If today's data is not found, get the most recent (first item in array)
+    if (!today && dailyArray.length > 0) {
+      today = dailyArray[0];
+      console.log('Today not found, using most recent:', today.date);
+    }
+    
     console.log('Today data:', today);
     
     // Get this month's usage
@@ -324,15 +345,21 @@ ipcMain.handle('get-usage-data', async () => {
 
     // Get recent sessions
     const sessionsArray = sessionData.sessions || sessionData.data || [];
-    const recentSessions = sessionsArray.slice(0, 5).map((s: any) => ({
-      name: s.session,
-      tokens: s.totalTokens,
-      cost: s.totalCost || s.costUSD || s.totalCostUSD,
-      lastActivity: s.lastActivity
-    }));
+    console.log('Sessions array:', sessionsArray);
+    
+    const recentSessions = sessionsArray.slice(0, 5).map((s: any) => {
+      console.log('Session item:', s);
+      return {
+        name: s.sessionName || s.session || s.name || 'Unknown Session',
+        tokens: s.totalTokens || 0,
+        cost: s.totalCost || s.costUSD || s.totalCostUSD || 0,
+        lastActivity: s.lastActivity || s.lastUpdated || new Date().toISOString()
+      };
+    });
 
     const result = {
       today: today ? {
+        date: today.date,
         tokens: today.totalTokens,
         cost: today.totalCost || today.costUSD || today.totalCostUSD,
         models: today.modelsUsed || today.models || []

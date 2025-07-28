@@ -12,7 +12,24 @@ A beautiful macOS desktop widget that displays your Claude Code usage statistics
 - 🔄 **Auto-refresh**: Updates every minute automatically
 - 📍 **Flexible Positioning**: Place the widget in any corner of your screen
 - 👻 **Adjustable Opacity**: Control the widget's transparency
+- 📏 **Resizable Height**: Drag the bottom edge to adjust widget height
 - 🚀 **System Tray Integration**: Easy access from the menu bar
+
+## Prerequisites
+
+- **ccusage CLI tool**: This widget requires the [ccusage](https://github.com/ryoppippi/ccusage) CLI tool to be installed and working.
+  
+  Install ccusage globally:
+  ```bash
+  npm install -g ccusage
+  ```
+  
+  Or use it with npx:
+  ```bash
+  npx ccusage
+  ```
+
+- **Claude Code data**: The widget reads usage data from `~/.claude/projects/`. Make sure you have used Claude Code and have data files in this directory.
 
 ## Installation
 
@@ -65,7 +82,8 @@ The built app will be in the `release` folder.
 
 - macOS 10.14 or later
 - Node.js 16 or later
-- ccusage CLI tool data (the widget reads from `~/.claude/projects/`)
+- [ccusage](https://github.com/ryoppippi/ccusage) CLI tool (see Prerequisites above)
+- Claude Code usage data (the widget reads from `~/.claude/projects/`)
 
 ## Technologies Used
 

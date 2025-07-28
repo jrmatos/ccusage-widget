@@ -2,6 +2,7 @@ interface Window {
   ccusageAPI: {
       getUsageData: () => Promise<{
         today: {
+          date?: string;
           tokens: number;
           cost: number;
           models: string[];
@@ -66,6 +67,22 @@ const formatModels = (models: string[]): string => {
   }).join(', ');
 };
 
+const formatDateLabel = (dateString: string): string => {
+  const date = new Date(dateString + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  if (date.getTime() === today.getTime()) {
+    return 'Today';
+  } else if (date.getTime() === yesterday.getTime()) {
+    return 'Yesterday';
+  } else {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+};
+
 async function loadUsageData() {
   const loadingEl = document.getElementById('loading')!;
   const errorEl = document.getElementById('error')!;
@@ -83,6 +100,15 @@ async function loadUsageData() {
       document.getElementById('today-tokens')!.textContent = formatNumber(data.today.tokens);
       document.getElementById('today-cost')!.textContent = formatCost(data.today.cost);
       document.getElementById('today-models')!.textContent = formatModels(data.today.models);
+      
+      // Update label if not today
+      const todayDate = new Date().toISOString().split('T')[0];
+      if (data.today.date && data.today.date !== todayDate) {
+        const dateLabel = document.querySelector('.today .stat-label');
+        if (dateLabel) {
+          dateLabel.textContent = formatDateLabel(data.today.date);
+        }
+      }
     } else {
       document.getElementById('today-tokens')!.textContent = '0';
       document.getElementById('today-cost')!.textContent = '$0.00';
@@ -106,16 +132,32 @@ async function loadUsageData() {
     const sessionsList = document.getElementById('sessions-list')!;
     sessionsList.innerHTML = '';
     
-    if (data.recentSessions.length > 0) {
+    console.log('Recent sessions data:', data.recentSessions);
+    
+    if (data.recentSessions && data.recentSessions.length > 0) {
+      let sessionsAdded = 0;
+      
       data.recentSessions.forEach((session: any) => {
-        const sessionEl = document.createElement('div');
-        sessionEl.className = 'session-item';
-        sessionEl.innerHTML = `
-          <span class="session-name" title="${session.name}">${session.name}</span>
-          <span class="session-cost">${formatCost(session.cost)}</span>
-        `;
-        sessionsList.appendChild(sessionEl);
+        console.log('Processing session:', session);
+        
+        // More lenient check - just need a name
+        if (session && session.name) {
+          const sessionEl = document.createElement('div');
+          sessionEl.className = 'session-item';
+          const displayName = session.name.replace('Unknown Session', 'Session');
+          sessionEl.innerHTML = `
+            <span class="session-name" title="${displayName}">${displayName}</span>
+            <span class="session-cost">${formatCost(session.cost || 0)}</span>
+          `;
+          sessionsList.appendChild(sessionEl);
+          sessionsAdded++;
+        }
       });
+      
+      // If no valid sessions were added
+      if (sessionsAdded === 0) {
+        sessionsList.innerHTML = '<div style="text-align: center; color: #666;">No session data available</div>';
+      }
     } else {
       sessionsList.innerHTML = '<div style="text-align: center; color: #666;">No recent sessions</div>';
     }
