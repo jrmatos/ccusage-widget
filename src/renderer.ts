@@ -15,6 +15,13 @@ interface Window {
           tokens: number;
           cost: number;
         };
+        currentBlock: {
+          tokens: number;
+          cost: number;
+          startTime: string;
+          endTime: string;
+          isActive: boolean;
+        } | null;
         recentSessions: Array<{
           name: string;
           tokens: number;
@@ -65,6 +72,31 @@ const formatModels = (models: string[]): string => {
     if (m.includes('haiku')) return 'Haiku';
     return m;
   }).join(', ');
+};
+
+
+const formatBlockTime = (startTime: string, endTime: string): string => {
+  try {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return 'Invalid time range';
+    }
+
+    const formatTime = (date: Date) => {
+      return date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: false 
+      });
+    };
+
+    return `${formatTime(start)} - ${formatTime(end)}`;
+  } catch (error) {
+    console.error('Error formatting block time:', error);
+    return 'Invalid time range';
+  }
 };
 
 const formatDateLabel = (dateString: string): string => {
@@ -127,6 +159,17 @@ async function loadUsageData() {
     // Update total stats
     document.getElementById('total-tokens')!.textContent = formatNumber(data.total.tokens);
     document.getElementById('total-cost')!.textContent = formatCost(data.total.cost);
+    
+    // Update current block stats
+    if (data.currentBlock) {
+      document.getElementById('blocks-total')!.textContent = formatNumber(data.currentBlock.tokens);
+      document.getElementById('blocks-cost')!.textContent = formatCost(data.currentBlock.cost);
+      document.getElementById('blocks-time')!.textContent = formatBlockTime(data.currentBlock.startTime, data.currentBlock.endTime);
+    } else {
+      document.getElementById('blocks-total')!.textContent = '0';
+      document.getElementById('blocks-cost')!.textContent = '$0.00';
+      document.getElementById('blocks-time')!.textContent = 'No active block';
+    }
     
     // Update recent sessions
     const sessionsList = document.getElementById('sessions-list')!;
