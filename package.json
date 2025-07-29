@@ -1,7 +1,7 @@
 {
   "name": "ccusage-widget",
   "version": "1.1.0",
-  "description": "A macOS widget for displaying Claude Code usage statistics",
+  "description": "A beautiful macOS desktop widget that displays your Claude Code usage statistics in real-time",
   "main": "dist/main.js",
   "bin": {
     "ccusage-widget": "./bin/ccusage-widget.js"
@@ -14,17 +14,49 @@
     "dist": "electron-builder",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["electron", "macos", "widget", "claude", "ccusage"],
-  "author": "JeongJaeSoon",
+  "keywords": [
+    "electron",
+    "macos",
+    "widget",
+    "claude",
+    "ccusage",
+    "desktop",
+    "productivity",
+    "usage-tracker",
+    "desktop-app",
+    "system-tray",
+    "real-time",
+    "statistics"
+  ],
+  "author": {
+    "name": "JeongJaeSoon",
+    "email": "94jaesoon.jeong@gmail.com",
+    "url": "https://github.com/JeongJaeSoon"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/JeongJaeSoon/ccusage-widget.git"
   },
+  "homepage": "https://github.com/JeongJaeSoon/ccusage-widget#readme",
+  "bugs": {
+    "url": "https://github.com/JeongJaeSoon/ccusage-widget/issues"
+  },
   "engines": {
     "node": ">=16.0.0"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "assets/",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
