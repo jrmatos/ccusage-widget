@@ -87,18 +87,27 @@ const formatModels = (models: string[]): string => {
 +document.getElementById('blocks-total')!.textContent = formatNumber(data.currentBlock.tokens);
 
 const formatBlockTime = (startTime: string, endTime: string): string => {
-  const start = new Date(startTime);
-  const end = new Date(endTime);
-  
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      hour12: false 
-    });
-  };
-  
-  return `${formatTime(start)} - ${formatTime(end)}`;
+  try {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return 'Invalid time range';
+    }
+
+    const formatTime = (date: Date) => {
+      return date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: false 
+      });
+    };
+
+    return `${formatTime(start)} - ${formatTime(end)}`;
+  } catch (error) {
+    console.error('Error formatting block time:', error);
+    return 'Invalid time range';
+  }
 };
 
 const formatDateLabel = (dateString: string): string => {
