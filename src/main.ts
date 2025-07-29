@@ -366,13 +366,14 @@ ipcMain.handle('get-usage-data', async () => {
     });
 
     // Get blocks data
-    const blocksArray = blocksData.blocks || [];
+    const blocksArray = Array.isArray(blocksData.blocks) ? blocksData.blocks : [];
     console.log('Blocks array:', blocksArray);
     
     // Find current active block
-    const currentBlock = blocksArray.find((block: any) => block.isActive === true);
+    const currentBlock = blocksArray.find((block: any) => 
+      block && typeof block === 'object' && block.isActive === true
+    );
     console.log('Current active block:', currentBlock);
-
     const result = {
       today: today ? {
         date: today.date,
