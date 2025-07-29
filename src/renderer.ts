@@ -74,14 +74,17 @@ const formatModels = (models: string[]): string => {
   }).join(', ');
 };
 
-const formatBlocks = (blocks: number): string => {
-  if (blocks >= 1000000) {
-    return (blocks / 1000000).toFixed(1) + 'M';
-  } else if (blocks >= 1000) {
-    return (blocks / 1000).toFixed(1) + 'k';
-  }
-  return blocks.toString();
-};
+-const formatBlocks = (blocks: number): string => {
+-  if (blocks >= 1000000) {
+-    return (blocks / 1000000).toFixed(1) + 'M';
+-  } else if (blocks >= 1000) {
+-    return (blocks / 1000).toFixed(1) + 'k';
+-  }
+-  return blocks.toString();
+-};
+
+-document.getElementById('blocks-total')!.textContent = formatBlocks(data.currentBlock.tokens);
++document.getElementById('blocks-total')!.textContent = formatNumber(data.currentBlock.tokens);
 
 const formatBlockTime = (startTime: string, endTime: string): string => {
   const start = new Date(startTime);
