@@ -74,17 +74,6 @@ const formatModels = (models: string[]): string => {
   }).join(', ');
 };
 
--const formatBlocks = (blocks: number): string => {
--  if (blocks >= 1000000) {
--    return (blocks / 1000000).toFixed(1) + 'M';
--  } else if (blocks >= 1000) {
--    return (blocks / 1000).toFixed(1) + 'k';
--  }
--  return blocks.toString();
--};
-
--document.getElementById('blocks-total')!.textContent = formatBlocks(data.currentBlock.tokens);
-+document.getElementById('blocks-total')!.textContent = formatNumber(data.currentBlock.tokens);
 
 const formatBlockTime = (startTime: string, endTime: string): string => {
   try {
@@ -173,7 +162,7 @@ async function loadUsageData() {
     
     // Update current block stats
     if (data.currentBlock) {
-      document.getElementById('blocks-total')!.textContent = formatBlocks(data.currentBlock.tokens);
+      document.getElementById('blocks-total')!.textContent = formatNumber(data.currentBlock.tokens);
       document.getElementById('blocks-cost')!.textContent = formatCost(data.currentBlock.cost);
       document.getElementById('blocks-time')!.textContent = formatBlockTime(data.currentBlock.startTime, data.currentBlock.endTime);
     } else {
