@@ -251,32 +251,35 @@ ipcMain.handle('get-usage-data', async () => {
     // Execute ccusage commands to get data
     console.log('Executing ccusage commands...');
     // Try different ways to execute ccusage
-    let dailyResult, monthlyResult, sessionResult;
+    let dailyResult, monthlyResult, sessionResult, blocksResult;
     
     try {
       // First try with npx
-      [dailyResult, monthlyResult, sessionResult] = await Promise.all([
+      [dailyResult, monthlyResult, sessionResult, blocksResult] = await Promise.all([
         execAsync('npx ccusage daily --json'),
         execAsync('npx ccusage monthly --json'),
-        execAsync('npx ccusage session --json')
+        execAsync('npx ccusage session --json'),
+        execAsync('npx ccusage blocks --json')
       ]);
     } catch (error) {
       console.error('Failed with npx, trying direct ccusage:', error);
       // Try with direct ccusage command
       try {
-        [dailyResult, monthlyResult, sessionResult] = await Promise.all([
+        [dailyResult, monthlyResult, sessionResult, blocksResult] = await Promise.all([
           execAsync('ccusage daily --json'),
           execAsync('ccusage monthly --json'),
-          execAsync('ccusage session --json')
+          execAsync('ccusage session --json'),
+          execAsync('ccusage blocks --json')
         ]);
       } catch (error2) {
         console.error('Failed with direct ccusage, trying node_modules:', error2);
         // Try with local node_modules
         const ccusagePath = path.join(__dirname, '..', 'node_modules', '.bin', 'ccusage');
-        [dailyResult, monthlyResult, sessionResult] = await Promise.all([
+        [dailyResult, monthlyResult, sessionResult, blocksResult] = await Promise.all([
           execAsync(`${ccusagePath} daily --json`),
           execAsync(`${ccusagePath} monthly --json`),
-          execAsync(`${ccusagePath} session --json`)
+          execAsync(`${ccusagePath} session --json`),
+          execAsync(`${ccusagePath} blocks --json`)
         ]);
       }
     }
@@ -284,28 +287,33 @@ ipcMain.handle('get-usage-data', async () => {
     console.log('Daily result:', dailyResult.stdout);
     console.log('Monthly result:', monthlyResult.stdout);
     console.log('Session result:', sessionResult.stdout);
+    console.log('Blocks result:', blocksResult.stdout);
 
-    let dailyData, monthlyData, sessionData;
+    let dailyData, monthlyData, sessionData, blocksData;
     
     try {
       const dailyParsed = JSON.parse(dailyResult.stdout || '{}');
       const monthlyParsed = JSON.parse(monthlyResult.stdout || '{}');
       const sessionParsed = JSON.parse(sessionResult.stdout || '{}');
+      const blocksParsed = JSON.parse(blocksResult.stdout || '{}');
       
       console.log('Parsed daily data structure:', Object.keys(dailyParsed));
       console.log('Parsed monthly data structure:', Object.keys(monthlyParsed));
       console.log('Parsed session data structure:', Object.keys(sessionParsed));
+      console.log('Parsed blocks data structure:', Object.keys(blocksParsed));
       
       // Adjust to actual ccusage output structure
       dailyData = dailyParsed;
       monthlyData = monthlyParsed;
       sessionData = sessionParsed;
+      blocksData = blocksParsed;
     } catch (parseError) {
       console.error('Failed to parse JSON:', parseError);
       console.error('Raw outputs:', {
         daily: dailyResult?.stdout,
         monthly: monthlyResult?.stdout,
-        session: sessionResult?.stdout
+        session: sessionResult?.stdout,
+        blocks: blocksResult?.stdout
       });
       throw new Error('Failed to parse ccusage output');
     }
@@ -357,6 +365,14 @@ ipcMain.handle('get-usage-data', async () => {
       };
     });
 
+    // Get blocks data
+    const blocksArray = blocksData.blocks || [];
+    console.log('Blocks array:', blocksArray);
+    
+    // Find current active block
+    const currentBlock = blocksArray.find((block: any) => block.isActive === true);
+    console.log('Current active block:', currentBlock);
+
     const result = {
       today: today ? {
         date: today.date,
@@ -372,6 +388,13 @@ ipcMain.handle('get-usage-data', async () => {
         tokens: totalDaily.totalTokens || 0,
         cost: totalDaily.totalCost || totalDaily.totalCostUSD || 0
       },
+      currentBlock: currentBlock ? {
+        tokens: (currentBlock.tokenCounts?.inputTokens || 0) + (currentBlock.tokenCounts?.outputTokens || 0),
+        cost: currentBlock.costUSD || 0,
+        startTime: currentBlock.startTime,
+        endTime: currentBlock.endTime,
+        isActive: true
+      } : null,
       recentSessions,
       lastUpdated: new Date().toISOString()
     };
@@ -388,6 +411,7 @@ ipcMain.handle('get-usage-data', async () => {
         tokens: 0,
         cost: 0
       },
+      currentBlock: null,
       recentSessions: [],
       lastUpdated: new Date().toISOString(),
       error: error instanceof Error ? error.message : 'Unknown error'
