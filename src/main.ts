@@ -333,9 +333,9 @@ ipcMain.handle('get-usage-data', async () => {
     // Find today's data or get the most recent day
     let today = dailyArray.find((d: any) => d.date === todayDate);
     
-    // If today's data is not found, get the most recent (first item in array)
+    // If today's data is not found, get the most recent (last item in array)
     if (!today && dailyArray.length > 0) {
-      today = dailyArray[0];
+      today = dailyArray[dailyArray.length - 1];
       console.log('Today not found, using most recent:', today.date);
     }
     
