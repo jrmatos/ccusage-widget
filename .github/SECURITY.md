@@ -8,5 +8,5 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please email 94jaesoon.jeong@gmail.com.
+If you discover a security vulnerability, please email <mailto:94jaesoon.jeong@gmail.com>.
 We will respond as soon as possible and coordinate a fix.

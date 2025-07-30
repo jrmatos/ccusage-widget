@@ -18,4 +18,4 @@ Examples of unacceptable behavior:
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project maintainer at 94jaesoon.jeong@gmail.com.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project maintainer at <mailto:94jaesoon.jeong@gmail.com>.
