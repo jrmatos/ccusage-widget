@@ -1,6 +1,18 @@
 # CCUsage Widget for macOS
 
+[![npm version](https://badge.fury.io/js/ccusage-widget.svg)](https://www.npmjs.com/package/ccusage-widget)
+[![npm downloads](https://img.shields.io/npm/dm/ccusage-widget.svg)](https://www.npmjs.com/package/ccusage-widget)
+[![license](https://img.shields.io/github/license/JeongJaeSoon/ccusage-widget)](./LICENSE)
+
 A beautiful macOS desktop widget that displays your Claude Code usage statistics in real-time.
+
+---
+
+## 📦 NPM Package
+
+[https://www.npmjs.com/package/ccusage-widget](https://www.npmjs.com/package/ccusage-widget)
+
+---
 
 ## Features
 
@@ -32,6 +44,8 @@ A beautiful macOS desktop widget that displays your Claude Code usage statistics
 - **Claude Code data**: The widget reads usage data from `~/.claude/projects/`. Make sure you have used Claude Code and have data files in this directory.
 
 ## Installation
+
+📦 **NPM Package**: [https://www.npmjs.com/package/ccusage-widget](https://www.npmjs.com/package/ccusage-widget)
 
 ### Option 1: Install from npm (Recommended)
 

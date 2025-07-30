@@ -18,7 +18,7 @@ interface WidgetConfig {
   position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
-let config: WidgetConfig = {
+const config: WidgetConfig = {
   alwaysOnTop: true,
   opacity: 0.95,
   refreshInterval: 60000, // 1 minute
