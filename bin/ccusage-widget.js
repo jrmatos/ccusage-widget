@@ -69,22 +69,31 @@ try {
 const isGlobalInstall = __dirname.includes('node_modules');
 
 // Show launching message
-console.log('🚀 Launching CCUsage Widget...');
+console.log('🚀 Launching CCUsage Widget in background...');
 
 if (isGlobalInstall) {
-  // When installed globally, we need to run electron from the package
+  // When installed globally, run electron in detached background mode
   const child = spawn(electronPath, [appPath], {
-    stdio: 'inherit',
+    detached: true,
+    stdio: 'ignore',
     env: { ...process.env }
   });
 
-  child.on('close', (code) => {
-    process.exit(code);
-  });
+  // Unref the child process so parent can exit
+  child.unref();
+
+  console.log('✅ CCUsage Widget is running! Check your menu bar.');
+  process.exit(0);
 } else {
-  // Running locally
-  require('child_process').exec('npm start', {
+  // Running locally - also run in background
+  const child = spawn('npm', ['start'], {
     cwd: appPath,
-    stdio: 'inherit'
+    detached: true,
+    stdio: 'ignore',
+    shell: true
   });
+
+  child.unref();
+  console.log('✅ CCUsage Widget is running! Check your menu bar.');
+  process.exit(0);
 }
