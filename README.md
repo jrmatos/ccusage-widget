@@ -35,7 +35,7 @@ A beautiful macOS menu bar app that displays your Claude Code usage statistics i
 
 ## Installation
 
-This app is designed for local usage only. Follow these steps to install it globally on your system:
+This app is not published to npm registry. Install from source and make the `ccusage-widget` command available globally on your system:
 
 1. **Clone this repository**:
    ```bash
