@@ -38,6 +38,7 @@ function extractSessionNameFromId(sessionId: string): string {
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let isQuitting = false;
+let trayUpdateInterval: NodeJS.Timeout | null = null;
 
 const isDev = process.argv.includes('--dev');
 
@@ -98,6 +99,7 @@ function createWindow() {
     alwaysOnTop: config.alwaysOnTop,
     resizable: true,
     movable: true,
+    show: false, // Don't show window by default - only open when user clicks menu bar
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -131,93 +133,122 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // Auto-hide window when it loses focus (menu bar app behavior)
+  mainWindow.on('blur', () => {
+    // Don't hide if DevTools are open (for debugging)
+    if (!mainWindow?.webContents.isDevToolsOpened()) {
+      mainWindow?.hide();
+    }
+  });
+}
+
+// Function to show window near the tray icon
+function showWindowNearTray() {
+  if (!mainWindow || !tray) return;
+
+  const trayBounds = tray.getBounds();
+  const windowBounds = mainWindow.getBounds();
+
+  // Calculate position: below tray icon, horizontally centered
+  const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2));
+  const y = Math.round(trayBounds.y + trayBounds.height + 8); // 8px padding below menu bar
+
+  mainWindow.setPosition(x, y, false);
+  mainWindow.show();
+  mainWindow.focus();
+}
+
+// Function to fetch usage data and update tray title
+async function fetchAndUpdateTrayTitle() {
+  if (!tray) return;
+
+  try {
+    // Execute ccusage daily command to get today's cost
+    let result;
+
+    try {
+      // Try with npx first
+      result = await execAsync('npx ccusage daily --json');
+    } catch (error) {
+      try {
+        // Try direct command
+        result = await execAsync('ccusage daily --json');
+      } catch (error2) {
+        // Try local node_modules
+        const ccusagePath = path.join(__dirname, '..', 'node_modules', '.bin', 'ccusage');
+        result = await execAsync(`${ccusagePath} daily --json`);
+      }
+    }
+
+    const dailyData = JSON.parse(result.stdout || '{}');
+    const dailyArray = dailyData.daily || dailyData.data || [];
+
+    // Get today's date in YYYY-MM-DD format
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayDate = `${year}-${month}-${day}`;
+
+    // Find today's data or get the most recent day
+    let today = dailyArray.find((d: any) => d.date === todayDate);
+    if (!today && dailyArray.length > 0) {
+      today = dailyArray[dailyArray.length - 1];
+    }
+
+    if (today) {
+      const cost = today.totalCost || today.costUSD || today.totalCostUSD || 0;
+      tray.setTitle(`Claude Code: $${cost.toFixed(2)}`);
+    } else {
+      tray.setTitle('Claude Code: $0.00');
+    }
+  } catch (error) {
+    console.error('Error fetching usage data for tray:', error);
+    tray.setTitle('Error');
+  }
 }
 
 function createTray() {
   const iconPath = path.join(__dirname, '..', 'assets', 'icon-template.png');
   const icon = nativeImage.createFromPath(iconPath);
-  
+
   tray = new Tray(icon.resize({ width: 16, height: 16 }));
-  
+
+  // Set initial title to "Claude Code: Loading..."
+  tray.setTitle('Claude Code: Loading...');
+
+  // Simplified context menu for menu bar app
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Show Widget',
+      label: 'Open Widget',
       click: () => {
-        mainWindow?.show();
-      }
-    },
-    {
-      label: 'Hide Widget',
-      click: () => {
-        mainWindow?.hide();
+        showWindowNearTray();
       }
     },
     { type: 'separator' },
     {
-      label: 'Position',
-      submenu: [
-        {
-          label: 'Top Right',
-          type: 'radio',
-          checked: config.position === 'top-right',
-          click: () => updatePosition('top-right')
-        },
-        {
-          label: 'Top Left',
-          type: 'radio',
-          checked: config.position === 'top-left',
-          click: () => updatePosition('top-left')
-        },
-        {
-          label: 'Bottom Right',
-          type: 'radio',
-          checked: config.position === 'bottom-right',
-          click: () => updatePosition('bottom-right')
-        },
-        {
-          label: 'Bottom Left',
-          type: 'radio',
-          checked: config.position === 'bottom-left',
-          click: () => updatePosition('bottom-left')
-        }
-      ]
-    },
-    {
-      label: 'Always on Top',
-      type: 'checkbox',
-      checked: config.alwaysOnTop,
-      click: (menuItem) => {
-        config.alwaysOnTop = menuItem.checked;
-        mainWindow?.setAlwaysOnTop(config.alwaysOnTop);
-      }
-    },
-    { type: 'separator' },
-    {
-      label: 'Refresh Now',
-      click: () => {
-        mainWindow?.webContents.send('refresh-data');
-      }
-    },
-    { type: 'separator' },
-    {
-      label: 'Quit',
+      label: 'Quit CCUsage Widget',
       click: () => {
         isQuitting = true;
         app.quit();
       }
     }
   ]);
-  
+
   tray.setToolTip('CCUsage Widget');
   tray.setContextMenu(contextMenu);
-  
+
+  // Click handler to show menu or open widget directly
   tray.on('click', () => {
-    if (mainWindow?.isVisible()) {
-      mainWindow.hide();
-    } else {
-      mainWindow?.show();
-    }
+    showWindowNearTray();
   });
+
+  // Start fetching and updating tray title immediately
+  fetchAndUpdateTrayTitle();
+
+  // Set up interval to update every 60 seconds
+  trayUpdateInterval = setInterval(fetchAndUpdateTrayTitle, 60000);
 }
 
 function updatePosition(position: WidgetConfig['position']) {
@@ -252,6 +283,10 @@ function updatePosition(position: WidgetConfig['position']) {
 }
 
 app.whenReady().then(() => {
+  // Hide dock icon to make this a menu bar-only app
+  if (process.platform === 'darwin') {
+    app.dock.hide();
+  }
 
   // Set About panel options for macOS
   app.setAboutPanelOptions({
@@ -283,6 +318,11 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   isQuitting = true;
+  // Clean up tray update interval
+  if (trayUpdateInterval) {
+    clearInterval(trayUpdateInterval);
+    trayUpdateInterval = null;
+  }
 });
 
 // IPC handlers for fetching usage data

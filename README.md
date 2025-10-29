@@ -1,110 +1,96 @@
 # CCUsage Widget for macOS
 
-[![npm version](https://badge.fury.io/js/ccusage-widget.svg)](https://www.npmjs.com/package/ccusage-widget)
-[![npm downloads](https://img.shields.io/npm/dm/ccusage-widget.svg)](https://www.npmjs.com/package/ccusage-widget)
 [![license](https://img.shields.io/github/license/JeongJaeSoon/ccusage-widget)](./LICENSE)
 
-A beautiful macOS desktop widget that displays your Claude Code usage statistics in real-time.
-
----
-
-## 📦 NPM Package
-
-[https://www.npmjs.com/package/ccusage-widget](https://www.npmjs.com/package/ccusage-widget)
-
----
+A beautiful macOS menu bar app that displays your Claude Code usage statistics in real-time, right next to your system clock.
 
 ## Features
 
-- 📊 **Real-time Usage Display**: Shows today's, this month's, and total usage
-- 💰 **Cost Tracking**: Displays costs in USD for each time period
+- 📊 **Menu Bar Integration**: Displays "Claude Code: $X.XX" directly in your macOS menu bar
+- 💰 **Real-time Cost Tracking**: See your daily Claude Code costs at a glance
+- 🔄 **Auto-refresh**: Updates every 60 seconds automatically
+- 🎨 **Beautiful UI**: Modern, translucent floating widget when you need details
+- 📱 **Detailed View**: Click to see today's, this month's, and total usage
 - 🤖 **Model Tracking**: See which Claude models you're using
-- 📱 **Recent Sessions**: View your 5 most recent conversation sessions
-- 🎨 **Beautiful UI**: Modern, translucent design that fits perfectly on macOS
-- 🔄 **Auto-refresh**: Updates every minute automatically
-- 📍 **Flexible Positioning**: Place the widget in any corner of your screen
-- 👻 **Adjustable Opacity**: Control the widget's transparency
-- 📏 **Resizable Height**: Drag the bottom edge to adjust widget height
-- 🚀 **System Tray Integration**: Easy access from the menu bar
+- 📝 **Recent Sessions**: View your 5 most recent conversation sessions
+- 👻 **No Dock Icon**: Pure menu bar app that stays out of your way
+- ⚡ **Auto-hide**: Widget window disappears when you click away
 
 ## Prerequisites
 
 - **ccusage CLI tool**: This widget requires the [ccusage](https://github.com/ryoppippi/ccusage) CLI tool to be installed and working.
-  
+
   Install ccusage globally:
   ```bash
-  npm install -g ccusage
+  pnpm install -g ccusage
   ```
-  
+
   Or use it with npx:
   ```bash
   npx ccusage
   ```
 
 - **Claude Code data**: The widget reads usage data from `~/.claude/projects/`. Make sure you have used Claude Code and have data files in this directory.
+- **Node.js 16+** and **pnpm** installed on your system
 
 ## Installation
 
-📦 **NPM Package**: [https://www.npmjs.com/package/ccusage-widget](https://www.npmjs.com/package/ccusage-widget)
+This app is designed for local usage only. Follow these steps to install it globally on your system:
 
-### Option 1: Install from npm (Recommended)
+1. **Clone this repository**:
+   ```bash
+   git clone https://github.com/JeongJaeSoon/ccusage-widget.git
+   cd ccusage-widget
+   ```
 
+2. **Install dependencies**:
+   ```bash
+   pnpm install
+   ```
+
+3. **Build and install globally**:
+   ```bash
+   pnpm run install-global
+   ```
+
+4. **Run the widget from anywhere**:
+   ```bash
+   ccusage-widget
+   ```
+   The app will appear in your menu bar with "Claude Code: $X.XX" text. Click it to see detailed usage information.
+
+### Uninstallation
+
+To remove the global installation:
 ```bash
-npx ccusage-widget
-```
-
-Or install globally:
-```bash
-npm install -g ccusage-widget
-ccusage-widget
-```
-
-### Option 2: Build from source
-
-1. Clone this repository:
-```bash
-git clone https://github.com/JeongJaeSoon/ccusage-widget.git
-cd ccusage-widget
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Build the application:
-```bash
-npm run build
-```
-
-4. Run the widget:
-```bash
-npm start
+pnpm run uninstall-global
 ```
 
 ## Development
 
-To run in development mode with hot reload:
+To run in development mode:
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 ## Building for Distribution
 
 To create a distributable macOS app:
 ```bash
-npm run dist
+pnpm run dist
 ```
 
 The built app will be in the `release` folder.
 
 ## Usage
 
-1. **Show/Hide**: Click the system tray icon or use the context menu
-2. **Position**: Right-click the tray icon and select Position to move the widget
-3. **Opacity**: Use the slider at the bottom of the widget to adjust transparency
-4. **Refresh**: Click the refresh button or wait for auto-refresh every minute
-5. **Minimize**: Click the minimize button to hide the widget
+1. **Menu Bar**: After running `ccusage-widget`, you'll see "Claude Code: $X.XX" in your macOS menu bar
+2. **Open Widget**: Click the menu bar text/icon to open the detailed usage widget
+3. **Auto-hide**: The widget automatically hides when you click outside of it
+4. **Right-click Menu**: Right-click the menu bar icon for options:
+   - **Open Widget**: Opens the detailed view
+   - **Quit CCUsage Widget**: Exits the application
+5. **Live Updates**: The menu bar cost updates every 60 seconds automatically
 
 ## Requirements
 
