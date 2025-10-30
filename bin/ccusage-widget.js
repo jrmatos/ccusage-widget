@@ -39,29 +39,65 @@ if (args.length > 0) {
 // No arguments, proceed with normal execution
 const appPath = path.join(__dirname, '..');
 
-// Try to find electron
+// Try to find electron in multiple ways
 let electronPath;
+let electronFound = false;
+
+// Method 1: Try to require electron directly
 try {
-  // Try to require electron (should work with optionalDependencies)
   electronPath = require('electron');
+  electronFound = true;
 } catch (e) {
-  // Electron not found - this shouldn't happen with optionalDependencies
-  // but provide helpful error message just in case
+  // Continue to next method
+}
+
+// Method 2: Try to find electron in the package's node_modules
+if (!electronFound) {
+  const possiblePaths = [
+    path.join(appPath, 'node_modules', 'electron', 'cli.js'),
+    path.join(appPath, 'node_modules', '.bin', 'electron'),
+  ];
+
+  for (const possiblePath of possiblePaths) {
+    if (fs.existsSync(possiblePath)) {
+      electronPath = possiblePath;
+      electronFound = true;
+      break;
+    }
+  }
+}
+
+// Method 3: Try using npx to run electron
+if (!electronFound) {
+  // Check if electron is available via npx
+  const { execSync } = require('child_process');
+  try {
+    execSync('npx --no-install electron --version', { stdio: 'ignore' });
+    electronPath = 'npx';
+    electronFound = true;
+  } catch (e) {
+    // npx electron not available
+  }
+}
+
+if (!electronFound) {
   console.error('❌ Error: Electron module could not be loaded.');
   console.error('');
   console.error('🤔 This might happen if:');
-  console.error('  1️⃣  The installation was incomplete');
+  console.error('  1️⃣  Electron is not installed (it\'s an optional dependency)');
   console.error('  2️⃣  You are on a platform not supported by Electron');
   console.error('');
-  console.error('🔧 Try reinstalling:');
-  console.error('  npm uninstall -g ccusage-widget');
-  console.error('  npm install -g ccusage-widget');
+  console.error('🔧 Try one of these solutions:');
   console.error('');
-  console.error('📦 Or run from source:');
+  console.error('📦 Option 1: Install electron globally first:');
+  console.error('  pnpm add -g electron@28');
+  console.error('  pnpm add -g ccusage-widget');
+  console.error('');
+  console.error('📦 Option 2: Run from source:');
   console.error('  git clone https://github.com/JeongJaeSoon/ccusage-widget');
   console.error('  cd ccusage-widget');
-  console.error('  npm install');
-  console.error('  npm start');
+  console.error('  pnpm install');
+  console.error('  pnpm start');
   process.exit(1);
 }
 
@@ -73,11 +109,24 @@ console.log('🚀 Launching CCUsage Widget in background...');
 
 if (isGlobalInstall) {
   // When installed globally, run electron in detached background mode
-  const child = spawn(electronPath, [appPath], {
-    detached: true,
-    stdio: 'ignore',
-    env: { ...process.env }
-  });
+  let child;
+
+  if (electronPath === 'npx') {
+    // Use npx to run electron
+    child = spawn('npx', ['--no-install', 'electron', appPath], {
+      detached: true,
+      stdio: 'ignore',
+      env: { ...process.env },
+      shell: true
+    });
+  } else {
+    // Use direct electron path
+    child = spawn(electronPath, [appPath], {
+      detached: true,
+      stdio: 'ignore',
+      env: { ...process.env }
+    });
+  }
 
   // Unref the child process so parent can exit
   child.unref();

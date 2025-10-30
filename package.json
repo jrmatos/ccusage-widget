@@ -69,9 +69,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "ccusage": "latest"
-  },
-  "optionalDependencies": {
+    "ccusage": "latest",
     "electron": "^28.3.3"
   },
   "build": {
